@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "data-models"
+version = "0.1.0"
+description = ""
+authors = ["bsinghvt <baljotsingh1986@yahoo.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+tortoise-orm = {extras = ["asyncpg"], version = "^0.21.6"}
+quart = "^0.19.6"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

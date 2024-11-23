@@ -1,0 +1,36 @@
+services:
+  kernvind-dev:
+    env_file:
+      - path: ./sec.env
+        required: true # default
+    build:
+      context: ./..
+      dockerfile: ./${SERVICE_NAME}/Dockerfile
+      target: dev
+      args:
+        DEV: true
+        SERVICE_NAME: ${SERVICE_NAME}
+    environment:
+       GOOGLE_SEC_FILE: /run/secrets/google_sec
+    volumes:
+      - "./app:/${SERVICE_NAME}/app"
+      - "./../data_models:/data_models"
+      - "./../crypto_lib:/crypto_lib"
+    ports:
+      - "5001:5001"
+    networks:
+      - postgres_db
+    secrets:
+      - google_sec
+
+
+secrets:
+  google_sec:
+    file: ./../sec/sec.json
+
+networks:
+  postgres_db:
+    external: true
+   
+   
+

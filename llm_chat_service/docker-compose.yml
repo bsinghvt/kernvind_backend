@@ -1,0 +1,27 @@
+services:
+  llm_chat-service-dev:
+    build:
+      context: ./..
+      dockerfile: ./${SERVICE_NAME}/Dockerfile
+      target: dev
+      args:
+        DEV: true
+        SERVICE_NAME: ${SERVICE_NAME}
+    env_file:
+      - path: ./sec.env
+        required: true # default
+    volumes:
+      - "./app:/${SERVICE_NAME}/app"
+      - "./../data_models:/data_models"
+      - "./../crypto_lib:/crypto_lib"
+      - "./../huggingface:/huggingface"
+    ports:
+      - "5005:5001"
+    networks:
+      - postgres_db
+    
+networks:
+  postgres_db:
+    external: true
+   
+

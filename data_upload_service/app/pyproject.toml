@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "app"
+version = "0.1.0"
+description = ""
+authors = ["bsinghvt <baljotsingh1986@yahoo.com>"]
+readme = "README.md"
+packages = [{include = "app", from = "src"}]
+
+[tool.poetry.scripts]
+start_dev = "manage:dev_app"
+
+[tool.poetry.dependencies]
+python = ">=3.12,<3.13"
+langchain-google-community = "^2.0.2"
+google-api-python-client = "^2.149.0"
+google-auth-httplib2 = "^0.2.0"
+google-auth-oauthlib = "^1.2.1"
+unstructured = {extras = ["csv", "doc", "docx", "local-inference", "pdf", "xlsx"], version = "^0.16.4"}
+langchain-postgres = "^0.0.12"
+psycopg = {extras = ["binary"], version = "^3.2.2"}
+youtube-transcript-api = "^0.6.2"
+langchain-community = "^0.3.2"
+langchain-text-splitters = "^0.3.0"
+langchain-huggingface = "^0.1.1"
+tortoise-orm = {extras = ["asyncpg"], version = "^0.21.6"}
+crypto-lib = {path = "../../crypto_lib"}
+opencv-python-headless = "^4.10.0.84"
+data-models = {path = "../../data_models"}
+
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.0.0"
+pytest-asyncio = "^0.23.7"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
