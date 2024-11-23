@@ -1,6 +1,7 @@
 
 import datetime
 from logging import Logger
+import os
 
 from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -73,9 +74,13 @@ dn/RsYEONbwQSjIfMPkvxF+8HQ==
 class Development(Config):
     DEBUG = True
 
-
+PS_USER = os.getenv('PS_USER')
+PS_PASS = os.getenv('PS_PASS')
+PS_DB = os.getenv('PS_DB')
 class Production(Config):
     SECRET_KEY = 'an actually secret key'
+    PG_CONNECTION_STRING = f"postgresql+psycopg://{PS_USER}:{PS_PASS}@postgres:5432/{PS_DB}"
+    PG_TORTOISE_CONNECTION_STRING = f"postgres://{PS_USER}:{PS_PASS}@postgres:5432/{PS_DB}"
 
 class Testing(Config):
     TESTING = True

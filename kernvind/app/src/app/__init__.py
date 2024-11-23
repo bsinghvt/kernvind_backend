@@ -2,7 +2,7 @@ from .initial_database_data import loadInitialDatabaseData
 from .database import init_db
 from quart import Quart
 from quart_schema import QuartSchema
-
+from quart_schema import RequestSchemaValidationError, ResponseSchemaValidationError
 
 from .extensions import bcrypt
 #from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
@@ -33,6 +33,19 @@ def create_app(mode='Development'):
     """In production create as app = create_app('Production')"""
     app = Quart(__name__)
     QuartSchema(app)
+    @app.errorhandler(RequestSchemaValidationError)
+    async def handle_request_validation_error(error):
+        logging.error(f'quart schema request validation error: {str(error.validation_error)}')   
+        return {
+      "error": 'All required fields are not provided',
+     }, 400
+    
+    @app.errorhandler(ResponseSchemaValidationError)
+    async def handle_response_validation_error(error):
+        logging.error(f'quart schema response validation error: {str(error.validation_error)}')   
+        return {
+      "error": 'Response validation failed',
+     }, 500
     app = cors(app, allow_origin="*")
     app.config.from_object(f'config.{mode}')
     app.config['APP_ROOT_LOGGER'] = root

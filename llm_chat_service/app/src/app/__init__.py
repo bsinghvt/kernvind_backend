@@ -6,6 +6,7 @@ from quart_jwt_extended import (
     JWTManager
 )
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
+from .database import init_db
 
 root = logging.getLogger()
 handler = RotatingFileHandler('log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
@@ -27,6 +28,7 @@ def create_app(mode='Development'):
     app = Quart(__name__)
     QuartSchema(app)
     app.config.from_object(f'config.{mode}')
+    init_db(app=app, generate_schemas=True)
     @app.before_serving
     async def create_pg_async_engine():
         print('before serving')
