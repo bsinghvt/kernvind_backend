@@ -15,13 +15,13 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from tortoise.query_utils import Prefetch
 
 root = logging.getLogger()
-handler = RotatingFileHandler('log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+handler = RotatingFileHandler('logs/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
 handler.setLevel(logging.ERROR)
 formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
-handler = RotatingFileHandler('log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+handler = RotatingFileHandler('logs/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
 handler.setLevel(logging.INFO)
 handler.setFormatter(formatter)
 
@@ -29,7 +29,7 @@ root.addHandler(handler)
 root.setLevel(logging.INFO)
 
 pgvector_logger = logging.getLogger('pgvector_logger')
-handler = RotatingFileHandler('pgvector_logger.warn', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+handler = RotatingFileHandler('logs/pgvector_logger.warn', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
 handler.setLevel(logging.WARNING)
 formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
 handler.setFormatter(formatter)

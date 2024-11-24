@@ -1,4 +1,4 @@
-FROM python:3.12.3-slim-bullseye as base
+FROM python:3.12.3-slim-bullseye AS base
 
 ARG DEV=false
 ARG SERVICE_NAME
@@ -6,7 +6,7 @@ ENV VIRTUAL_ENV=/poetry_venv
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 ENV APP_HOME=/${SERVICE_NAME}/app
 
-FROM base as dev
+FROM base AS dev
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -50,11 +50,11 @@ RUN if [ "$DEV" = "true" ]; then \
 #ENTRYPOINT ["poetry", "run", "start_dev"]
 ENTRYPOINT [ "tail", "-F", "anything"]
   
-FROM base as production
+FROM base AS production
 
 COPY --from=dev ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 WORKDIR /app
 COPY ${APP_HOME}/src ./
 EXPOSE 8080
-ENTRYPOINT [ "hypercorn", "--bind", "0.0.0.0:8080", "manage:production_app"]
-#ENTRYPOINT [ "tail", "-F", "anything"]
+#ENTRYPOINT [ "hypercorn", "--bind", "0.0.0.0:8080", "asgi:production_app"]
+ENTRYPOINT [ "tail", "-F", "anything"]

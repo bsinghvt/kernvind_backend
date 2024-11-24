@@ -1,3 +1,4 @@
+import os
 from .initial_database_data import loadInitialDatabaseData
 from .database import init_db
 from quart import Quart
@@ -15,14 +16,16 @@ from logging.handlers import RotatingFileHandler
 from .routes import register_routes
 from quart_cors import cors
 
+if not os.path.exists('logs'):
+    os.makedirs('logs')
 root = logging.getLogger()
-handler = RotatingFileHandler('log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+handler = RotatingFileHandler('logs/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
 handler.setLevel(logging.ERROR)
 formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
-handler = RotatingFileHandler('log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+handler = RotatingFileHandler('logs/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
 handler.setLevel(logging.INFO)
 handler.setFormatter(formatter)
 
@@ -62,10 +65,14 @@ def create_app(mode='Development'):
         import os
         print('serv')
         google_sec_file = os.getenv('GOOGLE_SEC_FILE')
-        if not google_sec_file:
+        google_sec = os.getenv('GOOGLE_SEC')
+        if google_sec_file:
+            with open(google_sec_file, 'r') as reader:
+                app.config['GOOGLE_SEC'] = reader.read()
+        elif google_sec:
+            app.config['GOOGLE_SEC'] = google_sec
+        else:
             raise Exception('Error with google drive auth')
-        with open(google_sec_file, 'r') as reader:
-            app.config['GOOGLE_SEC'] = reader.read()
         await loadInitialDatabaseData()
         
     """

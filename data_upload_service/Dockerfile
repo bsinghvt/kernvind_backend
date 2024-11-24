@@ -59,5 +59,5 @@ COPY --from=dev ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 WORKDIR /app
 COPY ${APP_HOME}/src ./
 EXPOSE 8080
-ENTRYPOINT [ "hypercorn", "--bind", "0.0.0.0:8080", "manage:production_app"]
+ENTRYPOINT [ "hypercorn", "--bind", "0.0.0.0:8080", "asgi:production_app"]
 #ENTRYPOINT [ "tail", "-F", "anything"]
