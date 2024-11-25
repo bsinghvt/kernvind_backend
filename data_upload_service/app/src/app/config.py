@@ -16,6 +16,7 @@ class Config():
     PG_TORTOISE_CONNECTION_STRING = "postgres://bitziv_user:S3cret@postgres:5432/bitziv_db"
     EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
     EMBEDDINGS_LENGTH=768
+    GOOGLE_SEC: str
 class Development(Config):
     DEBUG = True
 
