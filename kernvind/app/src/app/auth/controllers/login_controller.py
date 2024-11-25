@@ -40,3 +40,7 @@ async def refresh_user_token(headers: Headers)->Any:
     access_token = create_access_token(identity=current_user, user_claims=user_claims)
     logging.info(access_token)
     return RefreshSuccess(token=access_token)
+
+@login_bp.get('/health')
+async def health_check()->Any:
+    return 'ok'
