@@ -1,7 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 
-class DataFeedApacheKafka(BaseModel):
+class DataFeedPostgres(BaseModel):
     datafeed_source_unique_id: str
     datasource_name: str
     datafeedsource_id: str

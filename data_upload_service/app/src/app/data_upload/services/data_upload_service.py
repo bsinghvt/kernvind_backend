@@ -3,12 +3,12 @@ from crypto_lib.aes_GCM import decrypt_AES_GCM
 
 from .google_drive_upload.extract_google_drive import extract_google_drive
 from .youtube_transcript.extract_youtube_transcript import extract_youtube_transcript
-from ..models.datafeed_apache_kafka_model import DataFeedApacheKafka
+from ..models.datafeed_postgres_model import DataFeedPostgres
 from ...config import Config
 from sqlalchemy.ext.asyncio import AsyncEngine
 from data_models.datasource_model import DataFeed
 
-async def data_upload(config: Config, datafeed_msg: DataFeedApacheKafka, pg_async_engine: AsyncEngine):
+async def data_upload(config: Config, datafeed_msg: DataFeedPostgres, pg_async_engine: AsyncEngine):
     try:
         success = False
         if datafeed_msg.datafeedsource_id == 'Youtube video transcript':

@@ -6,7 +6,7 @@ from data_models.datasource_model import DataFeed
 from data_models.bot_model import DataSource
 from tortoise import Tortoise
 
-from .data_upload.models.datafeed_apache_kafka_model import DataFeedApacheKafka
+from .data_upload.models.datafeed_postgres_model import DataFeedPostgres
 from .database import init_pgvector, init_tortoise
 from .data_upload.services.data_upload_service import data_upload
 from .config import Config
@@ -48,7 +48,7 @@ async def start_consumer(config: Config):
         await init_tortoise(config=config)
         datafeeds:List[DataFeed] = []
         datasource_prefetch = Prefetch('datasource', queryset=DataSource.all().only('datasource_id', 'datasource_name'))
-        msg: DataFeedApacheKafka
+        msg: DataFeedPostgres
         while True:
             async with in_transaction() as connection:
                 datafeeds = await DataFeed.filter(datafeedloadstatus_id='NEW').only('datafeed_id',
@@ -68,7 +68,7 @@ async def start_consumer(config: Config):
                     await DataFeed.filter(datafeedloadstatus_id='NEW').update(datafeedloadstatus_id='LOADING')
             for df in datafeeds:
                 datafeedsource_id = df.datafeedsource_id # type: ignore
-                msg = DataFeedApacheKafka(datafeedsource_id=datafeedsource_id, 
+                msg = DataFeedPostgres(datafeedsource_id=datafeedsource_id, 
                                     datafeed_source_unique_id=df.datafeed_source_unique_id,
                                     datafeed_id=df.datafeed_id,
                                     datafeed_source_title=df.datafeed_source_title,
