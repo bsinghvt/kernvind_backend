@@ -45,7 +45,7 @@ class Bot(Model):
     bot_id = fields.BigIntField(primary_key=True)
     bot_name = fields.CharField(max_length=64, unique=True)
     bot_description = fields.CharField(max_length=1024, null=True)
-    user_llm  = fields.ForeignKeyField('models.UserLlm', related_name='bots_user_llm', on_delete=fields.NO_ACTION),  
+    user_llm  = fields.ForeignKeyField('models.UserLlm', related_name='bots_user_llm', on_delete=fields.NO_ACTION)
     created_by_user = fields.ForeignKeyField('models.User', related_name='created_by_user')
     datasource = fields.ForeignKeyField('models.DataSource', related_name='bot_datasource', on_delete=fields.SET_NULL, null=True)
     """
