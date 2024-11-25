@@ -21,7 +21,6 @@ def get_lc_llm(bot_user_llm: BotUserLlm):
                     base_url = bot_user_llm.llm_config.url,
                 )
             elif bot_user_llm.llmmodeltype_name == OPENAI:
-                print(bot_user_llm.llm_config.api_key)
                 llm_instance_dict[user_llm_id] = ChatOpenAI(
                     model = bot_user_llm.llm_name,
                     temperature=0,

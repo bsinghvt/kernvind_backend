@@ -132,8 +132,6 @@ async def runllm_with_rag(question: str, bot_id: int):
         
     try:
         history = await get_history(bot_id)
-        print(history)
-
         setup_and_retrieval = None
         retriever: Optional[VectorStoreRetriever] = None
         if vector_store:
@@ -150,7 +148,6 @@ async def runllm_with_rag(question: str, bot_id: int):
                 history_chain = history_prompt | llm | StrOutputParser()
                 new_question = await history_chain.ainvoke({'question' : question, 'history': history})
                 question = new_question
-            print(question)
             rag_prompt  = ChatPromptTemplate.from_template(YTT_PROMPT)
             chain = setup_and_retrieval | rag_prompt | llm | StrOutputParser()
             async for chunk in chain.astream({'question' : question, 'history': history}):
