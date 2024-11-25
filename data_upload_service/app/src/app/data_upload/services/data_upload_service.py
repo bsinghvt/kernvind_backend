@@ -27,7 +27,6 @@ async def data_upload(config: Config, datafeed_msg: DataFeedApacheKafka, pg_asyn
                             ciphertext=bytes.fromhex(datafeed_msg.ciphertext),
                             nonce=bytes.fromhex(datafeed_msg.nonce),
                             auth_tag=bytes.fromhex(datafeed_msg.auth_tag))
-                print(decrypt_raw.decode())
                 await extract_google_drive(datafeedsource_id=datafeed_msg.datafeedsource_id,
                                     datafeed_source_unique_id=datafeed_msg.datafeed_source_unique_id,
                                     datafeed_id=datafeed_msg.datafeed_id,

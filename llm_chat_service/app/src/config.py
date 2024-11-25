@@ -19,8 +19,6 @@ class Config:
     PG_CONNECTION_STRING = "postgresql+psycopg://bitziv_user:S3cret@postgres:5432/bitziv_db"
     EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
     EMBEDDINGS_LENGTH=768
-    JWT_ACCESS_TOKEN_EXPIRES=datetime.timedelta(minutes=15)
-    JWT_REFRESH_TOKEN_EXPIRES=datetime.timedelta(hours=120)
     JWT_DECODE_LEEWAY = 10
     JWT_ERROR_MESSAGE_KEY = 'error'
     JWT_PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
