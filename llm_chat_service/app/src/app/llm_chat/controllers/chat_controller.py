@@ -7,7 +7,6 @@ import uuid
 from ..services.get_bot_messages_service import get_bot_messages
 from ..services.save_message_service import save_message
 from langchain_core.language_models.chat_models import BaseChatModel
-from ..services.get_bot_datasource_service import get_bot_datasource
 
 from ...core.models.success_model import Success
 
@@ -124,7 +123,6 @@ async def _receive(bot_id: int, user_name: str, user_id: int, llm: str, datasour
         in_id = str(uuid.uuid4())
         sent_id = str(uuid.uuid4())
         date_time_now = datetime.now()
-        print(user_name)
         if user_id not in broker.websocket_bots[bot_id]:
             messageOut = ChatMessageOut(message_id=sent_id, 
                                             bot_id=msg.bot_id,
@@ -234,6 +232,5 @@ async def wss(bot_id: str) -> Any:
         async for message in broker.subscribe(bot_id=bot_id_int, user_id=user_id):
             await websocket.send_as(message, ChatMessageOut)  # type: ignore
     finally:
-        print('canceled')
         task.cancel() # type: ignore
         await task # type: ignore
