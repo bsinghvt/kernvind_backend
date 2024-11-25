@@ -28,9 +28,9 @@ psycopg = {extras = ["binary"], version = "^3.2.2"}
 langchain-huggingface = "^0.1.1"
 langchain-ollama = "^0.2.0"
 langchain-openai = "^0.2.5"
-data-models = {path = "../../data_models"}
 quart-schema = "^0.20.0"
 pydantic = "^2.10.0"
+data-models = {path = "../../data_models"}
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
