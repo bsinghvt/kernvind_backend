@@ -63,6 +63,7 @@ async def bot_get_messages(bot_id: str, headers: Headers) -> Any:
         return Failure(error="Bad request"), 400
     return await get_bot_messages(bot_id=bot_id_int, user_id=current_user)
 
+"""
 @chat_bp.put('/datasource/<bot_id>/<datasource_id>')
 @jwt_required
 @validate_headers(Headers)
@@ -90,6 +91,7 @@ async def bot_change_datasource(bot_id: str, datasource_id: str, headers: Header
         pass
     else:
         return datasource_name
+"""
 
 @chat_bp.delete('user/<bot_id>/<remove_user_id>')
 @jwt_required
