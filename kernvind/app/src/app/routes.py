@@ -8,10 +8,10 @@ from .datasource.controllers.datasource_controller import datasource_bp
 
 from quart import Quart
 def register_routes(app: Quart):
-    app.register_blueprint(social_auth_bp, url_prefix='/auth')
-    app.register_blueprint(signup_bp, url_prefix='/auth')
-    app.register_blueprint(login_bp, url_prefix='/auth')
-    app.register_blueprint(bot_bp, url_prefix='/bot')
-    app.register_blueprint(user_llm_bp, url_prefix='/userllm')
-    app.register_blueprint(public_llm_bp, url_prefix='/publicllm')
-    app.register_blueprint(datasource_bp, url_prefix='/datasource') 
+    app.register_blueprint(social_auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(signup_bp, url_prefix='/api/auth')
+    app.register_blueprint(login_bp, url_prefix='/api/auth')
+    app.register_blueprint(bot_bp, url_prefix='/api/bot')
+    app.register_blueprint(user_llm_bp, url_prefix='/api/userllm')
+    app.register_blueprint(public_llm_bp, url_prefix='/api/publicllm')
+    app.register_blueprint(datasource_bp, url_prefix='/api/datasource') 
