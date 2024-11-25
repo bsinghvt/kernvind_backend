@@ -1,6 +1,8 @@
 
 import logging
 from typing import  Optional, cast
+
+from data_models.datasource_model import DataFeed
 from ..model.bot_user_llm_model import BotUserLlm, LlmConfig
 from data_models.bot_model import Bot, BotUserXref, DataSource
 from data_models.user_model import  UserLlm
@@ -30,8 +32,10 @@ async def get_bot_userllm(bot_id: int, user_id: int):
 
         if bot_user_llm[0].datasource:
             datasource = cast(DataSource, bot_user_llm[0].datasource)
-            datasource_id = datasource.datasource_id
-            datasource_name = datasource.datasource_name
+            datafeed = await DataFeed.filter(datasource_id=datasource.datasource_id, datafeedloadstatus_id='LOADED').first()
+            if datafeed:
+                datasource_id = datasource.datasource_id
+                datasource_name = datasource.datasource_name
             
         user_llm_id = user_llm.user_llm_id
         llm_name = user_llm.llm.llm_name
