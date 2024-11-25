@@ -16,6 +16,7 @@ services:
       - "./app:/${SERVICE_NAME}/app"
       - "./../data_models:/data_models"
       - "./../crypto_lib:/crypto_lib"
+      - "./app/logs:/logs"
     ports:
       - "5001:5001"
     networks:

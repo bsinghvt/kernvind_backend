@@ -15,6 +15,7 @@ services:
       - "./../data_models:/data_models"
       - "./../crypto_lib:/crypto_lib"
       - "./../huggingface:/huggingface"
+      - "./app/logs:/logs"
     ports:
       - "5005:5001"
     networks:
