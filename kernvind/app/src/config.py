@@ -23,7 +23,8 @@ class Config:
     QUART_SCHEMA_PYDANTIC_DUMP_OPTIONS = {'exclude_none': True}
     JWT_ALGORITHM = 'RS256'
     JWT_ACCESS_TOKEN_EXPIRES=datetime.timedelta(minutes=15)
-    JWT_REFRESH_TOKEN_EXPIRES=datetime.timedelta(hours=20)
+    JWT_REFRESH_TOKEN_EXPIRES=datetime.timedelta(days=180)
+    BOT_CHAT_USER_REMOVE_URL = 'http://llm_chat_service-llm_chat-service-dev-1:5001/chat/user'
     JWT_DECODE_LEEWAY = 10
     JWT_ERROR_MESSAGE_KEY = 'error'
     JWT_PUBLIC_KEY = """-----BEGIN PUBLIC KEY-----
@@ -73,6 +74,7 @@ PS_PASS = os.getenv('PS_PASS')
 PS_DB = os.getenv('PS_DB')
 PS_SERVER = os.getenv('PS_SERVER')
 class Production(Config):
+    BOT_CHAT_USER_REMOVE_URL = ''
     SECRET_KEY = 'an actually secret key'
     PG_CONNECTION_STRING = f"postgresql+psycopg://{PS_USER}:{PS_PASS}@{PS_SERVER}:5432/{PS_DB}"
     PG_TORTOISE_CONNECTION_STRING = f"postgres://{PS_USER}:{PS_PASS}@{PS_SERVER}:5432/{PS_DB}"
