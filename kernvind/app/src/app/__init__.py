@@ -16,16 +16,16 @@ from logging.handlers import RotatingFileHandler
 from .routes import register_routes
 from quart_cors import cors
 
-if not os.path.exists('logs'):
-    os.makedirs('logs')
+if not os.path.exists('/logs'):
+    os.makedirs('/logs')
 root = logging.getLogger()
-handler = RotatingFileHandler('logs/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+handler = RotatingFileHandler('/logs/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
 handler.setLevel(logging.ERROR)
 formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
 handler.setFormatter(formatter)
 root.addHandler(handler)
 
-handler = RotatingFileHandler('logs/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+handler = RotatingFileHandler('/logs/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
 handler.setLevel(logging.INFO)
 handler.setFormatter(formatter)
 
@@ -35,7 +35,10 @@ root.setLevel(logging.INFO)
 def create_app(mode='Development'):
     """In production create as app = create_app('Production')"""
     app = Quart(__name__)
-    QuartSchema(app)
+    QuartSchema(app, openapi_path = "/api/openapi.json",
+                redoc_ui_path = "/api/redocs",
+                scalar_ui_path  = "/api/scalar",
+                swagger_ui_path = "/api/docs")
     @app.errorhandler(RequestSchemaValidationError)
     async def handle_request_validation_error(error):
         logging.error(f'quart schema request validation error: {str(error.validation_error)}')   
