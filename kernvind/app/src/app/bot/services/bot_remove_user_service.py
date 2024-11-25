@@ -10,6 +10,7 @@ from .get_bot_details_service import get_bot_details
 
 from ...core.models.error_model import Failure
 
+from quart import current_app
 
 async def bot_remove_user(user_id:int, bot_id: int, remove_user_id: int, token: str):
     if remove_user_id == user_id:
@@ -28,10 +29,11 @@ async def bot_remove_user(user_id:int, bot_id: int, remove_user_id: int, token: 
             return Failure(error="User is owner of bot LLM, so can't be removed"), 401
         
         botxref =  await BotUserXref.filter(user_id=remove_user_id, bot_id=bot_id).delete()
-        if botxref:
+        chat_user_remove_url = current_app.config['BOT_CHAT_USER_REMOVE_URL']
+        if botxref and chat_user_remove_url:
             try:
                 async with httpx.AsyncClient() as client:
-                    url = f'http://llm_chat_service-llm_chat-service-dev-1:5001/chat/user/{bot_id}/{remove_user_id}'
+                    url = f'{chat_user_remove_url}/{bot_id}/{remove_user_id}'
                     headers = {
                     'Authorization' : token
                     }
