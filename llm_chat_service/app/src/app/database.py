@@ -7,7 +7,7 @@ def init_db(app: Quart, generate_schemas=False):
    try:
        register_tortoise(
            app,
-           db_url="postgres://bitziv_user:S3cret@postgres:5432/bitziv_db",
+           db_url=app.config['PG_TORTOISE_CONNECTION_STRING'],
            #db_url="postgres://bitziv_user:S3cret@localhost:5432/bitziv_db",
            modules={"models": ["data_models.user_model",
                                 "data_models.bot_model",
