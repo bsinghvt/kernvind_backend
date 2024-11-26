@@ -39,6 +39,10 @@ chat_bp = Blueprint('chat', __name__)
 
 broker = Broker()
 
+@chat_bp.get('/health')
+async def health_check()->Any:
+    return 'ok'
+
 @chat_bp.get('/messages/bot/<bot_id>')
 @jwt_required
 @validate_headers(Headers)
