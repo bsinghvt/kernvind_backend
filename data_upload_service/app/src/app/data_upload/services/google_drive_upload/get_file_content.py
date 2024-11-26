@@ -33,6 +33,7 @@ async def get_file_content(user_info: dict, file_id: str, mime_type: str, metada
         fh.seek(0)
         unstructured_process = UnstructureProcess(fh=fh, mime_type=mime_type, meta_data=metadata)
         text = await unstructured_process.partition()
+        fh.close()
         return text
     except HttpError as error:
         logging.error(error.__str__())
