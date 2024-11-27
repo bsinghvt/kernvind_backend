@@ -57,6 +57,7 @@ def create_app(mode='Development'):
     app = cors(app, allow_origin="*")
     app.config.from_object(f'config.{mode}')
     app.config['APP_ROOT_LOGGER'] = root
+    creds_load(app)
     init_db(app=app, generate_schemas=True)
     """
     @app.before_serving
@@ -69,7 +70,6 @@ def create_app(mode='Development'):
     async def start_up():
         import os
         print('serv')
-        await creds_load(app)
         await loadInitialDatabaseData()
         
     """

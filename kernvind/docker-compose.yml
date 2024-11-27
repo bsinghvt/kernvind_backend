@@ -12,6 +12,7 @@ services:
         SERVICE_NAME: ${SERVICE_NAME}
     environment:
        APP_CREDS_JSON_FILE: /run/secrets/app_creds
+       PROD_APP_CREDS_JSON_FILE: /run/secrets/prod_app_creds
     volumes:
       - "./app:/${SERVICE_NAME}/app"
       - "./../data_models:/data_models"
@@ -23,11 +24,14 @@ services:
       - postgres_db
     secrets:
       - app_creds
+      - prod_app_creds
 
 
 secrets:
   app_creds:
     file: ./../sec/app_creds.json
+  prod_app_creds:
+    file: ./../sec/prod_app_creds.json
 
 networks:
   postgres_db:

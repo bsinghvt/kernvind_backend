@@ -12,8 +12,6 @@ class Config:
     PORT = 5001
     BCRYPT_LOG_ROUNDS = 12
     BCRYPT_HASH_PREFIX = '2b'
-    PG_CONNECTION_STRING = "postgresql+psycopg://bitziv_user:S3cret@postgres:5432/bitziv_db"
-    PG_TORTOISE_CONNECTION_STRING = "postgres://bitziv_user:S3cret@postgres:5432/bitziv_db"
     EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
     EMBEDDINGS_LENGTH=768
     GOOGLE_SIGN_IN_WEB_CLIENT_ID = '450752284339-ulgvunhkpo3k392irbe4e7ovko4gc4j8.apps.googleusercontent.com'
