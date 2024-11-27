@@ -1,6 +1,9 @@
 import logging
+from typing import Optional
 
 from crypto_lib.aes_GCM import encrypt_AES_GCM
+
+from .data_upload_service.utils.validate_youtube_video import validate_youtube_video
 
 from .data_upload_service.datasource_feeds.google_drive_user_token_service import get_google_drive_user_token
 from data_models.bot_model import DataSource
@@ -16,7 +19,13 @@ async def create_datasource(datasource_in: DataSourceIn):
     if datasource_in.datasource_feed.datafeedsource_id == 'Google drive' and datasource_in.datasource_feed.access_key == None:
         return Failure(error="Access Key is missing"), 400
     access_key: str = datasource_in.datasource_feed.access_key # type: ignore
+    title: Optional[str] = None
+    if datasource_in.datasource_feed.datafeedsource_id == 'Youtube video transcript' and datasource_in.datasource_feed.datafeed_source_title == 'FROM WEB':
+        title = await validate_youtube_video(video_id=datasource_in.datasource_feed.datafeed_source_unique_id)
+        if not title:
+            return Failure(error="Please make sure youtube link ia valid and english captions are available"), 400
         
+        datasource_in.datasource_feed.datafeed_source_title  = title   
     try:
         async with in_transaction() as connection:
             user_token: str | None = None

@@ -1,4 +1,7 @@
 import logging
+from typing import Optional
+
+from .data_upload_service.utils.validate_youtube_video import validate_youtube_video
 
 
 from .data_upload_service.datasource_feeds.google_drive_user_token_service import get_google_drive_user_token
@@ -20,6 +23,13 @@ async def add_datasource_feed(user_id: int, datasourceAddFeed: DataSourceAddFeed
     if datasourceAddFeed.datafeedsource_id == 'Google drive' and datasourceAddFeed.access_key == None:
         return Failure(error="Access Key is missing"), 400
     access_key: str = datasourceAddFeed.access_key # type: ignore
+    title: Optional[str] = None
+    if datasourceAddFeed.datafeedsource_id == 'Youtube video transcript' and datasourceAddFeed.datafeed_source_title == 'FROM WEB':
+        title = await validate_youtube_video(video_id=datasourceAddFeed.datafeed_source_unique_id)
+        if not title:
+            return Failure(error="Please make sure youtube link ia valid and english captions are available"), 400
+        
+        datasourceAddFeed.datafeed_source_title  = title
     try:
         async with in_transaction() as connection:
             user_token: str | None = None
