@@ -15,10 +15,10 @@ langchain-google-community = "^2.0.2"
 google-api-python-client = "^2.149.0"
 google-auth-httplib2 = "^0.2.0"
 google-auth-oauthlib = "^1.2.1"
-unstructured = {extras = ["csv", "doc", "docx", "local-inference", "pdf", "xlsx"], version = "^0.16.4"}
+unstructured = {extras = ["csv", "doc", "docx", "local-inference", "pdf", "xlsx"], version = "^0.16.8"}
 langchain-postgres = "^0.0.12"
 psycopg = {extras = ["binary"], version = "^3.2.2"}
-youtube-transcript-api = "^0.6.2"
+youtube-transcript-api = "^0.6.3"
 langchain-community = "^0.3.2"
 langchain-text-splitters = "^0.3.0"
 langchain-huggingface = "^0.1.1"
