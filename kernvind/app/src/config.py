@@ -1,7 +1,5 @@
 
 import datetime
-import os
-from langchain_huggingface import HuggingFaceEmbeddings
 
 
 class Config:
@@ -12,7 +10,8 @@ class Config:
     PORT = 5001
     BCRYPT_LOG_ROUNDS = 12
     BCRYPT_HASH_PREFIX = '2b'
-    EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
+    #EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
+    EMBEDDINGS=''
     EMBEDDINGS_LENGTH=768
     GOOGLE_SIGN_IN_WEB_CLIENT_ID = '450752284339-ulgvunhkpo3k392irbe4e7ovko4gc4j8.apps.googleusercontent.com'
     GOOGLE_SIGN_IN_IOS_CLIENT_ID = '450752284339-agsh7dq7sed4jhom2785s1api6i43oki.apps.googleusercontent.com'

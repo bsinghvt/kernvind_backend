@@ -58,6 +58,7 @@ def create_app(mode='Development'):
     app.config.from_object(f'config.{mode}')
     app.config['APP_ROOT_LOGGER'] = root
     creds_load(app)
+    print(app.config['PG_CONNECTION_STRING'])
     init_db(app=app, generate_schemas=True)
     """
     @app.before_serving

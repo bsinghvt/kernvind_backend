@@ -1,8 +1,5 @@
 services:
   kernvind-dev:
-    env_file:
-      - path: ./sec.env
-        required: true # default
     build:
       context: ./..
       dockerfile: ./${SERVICE_NAME}/Dockerfile
