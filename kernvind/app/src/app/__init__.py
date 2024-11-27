@@ -1,4 +1,6 @@
 import os
+
+from .load_creds import creds_load
 from .initial_database_data import loadInitialDatabaseData
 from .database import init_db
 from quart import Quart
@@ -67,15 +69,7 @@ def create_app(mode='Development'):
     async def start_up():
         import os
         print('serv')
-        google_sec_file = os.getenv('GOOGLE_SEC_FILE')
-        google_sec = os.getenv('GOOGLE_SEC')
-        if google_sec_file:
-            with open(google_sec_file, 'r') as reader:
-                app.config['GOOGLE_SEC'] = reader.read()
-        elif google_sec:
-            app.config['GOOGLE_SEC'] = google_sec
-        else:
-            raise Exception('Error with google drive auth')
+        await creds_load(app)
         await loadInitialDatabaseData()
         
     """

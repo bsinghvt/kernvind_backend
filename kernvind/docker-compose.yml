@@ -11,7 +11,7 @@ services:
         DEV: true
         SERVICE_NAME: ${SERVICE_NAME}
     environment:
-       GOOGLE_SEC_FILE: /run/secrets/google_sec
+       APP_CREDS_JSON_FILE: /run/secrets/app_creds
     volumes:
       - "./app:/${SERVICE_NAME}/app"
       - "./../data_models:/data_models"
@@ -22,12 +22,12 @@ services:
     networks:
       - postgres_db
     secrets:
-      - google_sec
+      - app_creds
 
 
 secrets:
-  google_sec:
-    file: ./../sec/sec.json
+  app_creds:
+    file: ./../sec/app_creds.json
 
 networks:
   postgres_db:
