@@ -7,6 +7,7 @@ from quart_jwt_extended import (
     JWTManager
 )
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
+from .load_creds import creds_load
 from .database import init_db
 if not os.path.exists('/logs'):
     os.makedirs('/logs')
@@ -30,6 +31,7 @@ def create_app(mode='Development'):
     app = Quart(__name__)
     QuartSchema(app)
     app.config.from_object(f'config.{mode}')
+    creds_load(app)
     init_db(app=app, generate_schemas=True)
     @app.before_serving
     async def create_pg_async_engine():

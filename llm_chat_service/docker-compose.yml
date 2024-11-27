@@ -20,9 +20,18 @@ services:
       - "5005:5001"
     networks:
       - postgres_db
+    environment:
+       APP_CREDS_JSON_FILE: /run/secrets/app_creds
+       HF_HOME: /huggingface
+    secrets:
+      - app_creds
     
 networks:
   postgres_db:
     external: true
+
+secrets:
+  app_creds:
+    file: ./../sec/app_creds.json
    
 
