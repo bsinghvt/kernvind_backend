@@ -9,9 +9,9 @@
 *sec.env
 
 #log files
-*log.error
-*log.info
-*pgvector_logger.warn
+*log.error*
+*log.info*
+*pgvector_logger.warn*
 
 
 # Byte-compiled / optimized / DLL files
