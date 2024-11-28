@@ -1,3 +1,4 @@
+import gc
 import logging
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -54,6 +55,8 @@ async def google_drive_files_loop(user_info: dict, folder_id: str):
             page_token = response.get("nextPageToken", None)
             if page_token is None:
                 break
+            del response
+            gc.collect()
     except HttpError as error:
         logging.error(error.__str__())
         raise error

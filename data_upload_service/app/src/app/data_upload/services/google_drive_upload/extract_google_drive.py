@@ -1,3 +1,4 @@
+import gc
 import json
 import logging
 from data_models.datasource_model import DataFeed
@@ -57,6 +58,8 @@ async def extract_google_drive(datafeed_source_unique_id: str,
                                 docs=file_data)
                 logging.info(f'Loaded {google_drive_file.name } :  {google_drive_file.mime_type}')
                 await DataFeed.filter(datafeed_id=datafeed_id).update(lastload_datetime=google_drive_file.modified_time)
+                del file_data, metadata
+                gc.collect()
                 
     except Exception as e:
         resp = Exception(f'Error while connecting to google drive: {datafeed_source_unique_id}. {e.__str__()}')

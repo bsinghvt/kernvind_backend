@@ -1,3 +1,4 @@
+import gc
 import logging
 from typing import List
 from langchain_core.documents import Document
@@ -21,8 +22,6 @@ async def extract_youtube_transcript(datafeed_source_unique_id: str,
                                     ):
     docs: List[Document] = []
     try:
-        cc_list = []
-        chunk_len = 0
         transcript_list = YouTubeTranscriptApi.get_transcript(datafeed_source_unique_id, languages=['en', 'en-GB'])
         cc: str
         time_int: int | None 
@@ -43,38 +42,8 @@ async def extract_youtube_transcript(datafeed_source_unique_id: str,
                                         source_title=datafeed_source_title,
                                         datasource_id=datasource_id,
                                         datafeed_id=datafeed_id).model_dump(exclude_none=True)))
-            """
-            if time_int:
-                if len(start_time) == 0:
-                    start_time.append(time_int)
-                cc = f'Caption start time: {time_int} | Caption: {transcript['text']}'
-            else:
-                cc = f'Caption: {transcript['text']}'
-            
-            cc = clean_non_ascii_chars(cc).replace('\n' , ' ')
-            chunk_len = chunk_len + len(cc)
-            cc_list.append(cc)
-            if chunk_len > 1000:
-                if len(start_time) == 0:
-                    start_time.append(0)
-                page_content = 'These are video captions and caption start time: \n' + '\n'.join(cc_list)
-                docs.append(Document(page_content=page_content, metadata=MetaData(source_id=f'{YOUTUBE_URL}{datafeed_source_unique_id}?t={start_time[0]}s',
-                                        datafeedsource_id=datafeedsource_id, 
-                                        source_title=datafeed_source_title,
-                                        datasource_id=datasource_id,
-                                        datafeed_id=datafeed_id).model_dump(exclude_none=True)))
-                cc_list = []
-                chunk_len = 0
-            """
-        if len(cc_list) > 0:
-            if len(start_time) == 0:
-                start_time.append(0)
-            page_content = 'These are video captions and caption start time: \n' + '\n'.join(cc_list)
-            docs.append(Document(page_content=page_content, metadata=MetaData(source_id=f'{YOUTUBE_URL}{datafeed_source_unique_id}?t={start_time[0]}s',
-                                                                            source_title=datafeed_source_title,
-                                                                            datafeedsource_id=datafeedsource_id, 
-                                                                            datasource_id=datasource_id,
-                                                                            datafeed_id=datafeed_id).model_dump(exclude_none=True)))
+            del cc
+            gc.collect()
         await upload_vector_doc_pg(engine=engine,
                                 datasource_name=datasource_name,
                                 config=config,
