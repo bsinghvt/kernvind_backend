@@ -25,10 +25,13 @@ async def add_datasource_feed(user_id: int, datasourceAddFeed: DataSourceAddFeed
     access_key: str = datasourceAddFeed.access_key # type: ignore
     title: Optional[str] = None
     if datasourceAddFeed.datafeedsource_id == 'Youtube video transcript' and datasourceAddFeed.datafeed_source_title == 'FROM WEB':
-        title = await validate_youtube_video(video_id=datasourceAddFeed.datafeed_source_unique_id)
-        if not title:
-            return Failure(error="Please make sure youtube link ia valid and english captions are available"), 400
         
+        try:
+            title = await validate_youtube_video(video_id=datasourceAddFeed.datafeed_source_unique_id)
+            if not title:
+                return Failure(error="Please make sure youtube link is valid and english captions are available and video is no longer than 6 hours"), 400
+        except Exception as e:
+            return Failure(error="Please make sure youtube link is valid and english captions are available and video is no longer than 6 hours"), 400
         datasourceAddFeed.datafeed_source_title  = title
     try:
         async with in_transaction() as connection:
