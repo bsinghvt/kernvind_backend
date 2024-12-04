@@ -30,7 +30,6 @@ langchain-openai = "^0.2.5"
 quart-schema = "^0.20.0"
 pydantic = "^2.10.0"
 data-models = {path = "../../data_models"}
-youtube-transcript-api = "^0.6.3"
 isodate = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
