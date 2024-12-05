@@ -2,6 +2,7 @@
 import datetime
 from logging import Logger
 import os
+from typing import Optional
 
 from langchain_huggingface import HuggingFaceEmbeddings
 
@@ -17,6 +18,8 @@ class Config():
     EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
     EMBEDDINGS_LENGTH=768
     GOOGLE_SEC: str
+    PROXY: Optional[str] = None
+    PROXY_AUTH: Optional[str] = None
 class Development(Config):
     DEBUG = True
 class Production(Config):

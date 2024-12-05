@@ -21,6 +21,11 @@ def creds_load(config: Config):
         ps_pass = dict_obj['ps_pass']
         ps_db = dict_obj['ps_db']
         ps_server = dict_obj['ps_server']
+        if 'proxy' in dict_obj:
+            proxy = dict_obj['proxy']
+            proxy_auth = dict_obj['proxy_auth']
+            config.PROXY = proxy
+            config.PROXY_AUTH = proxy_auth
         db_conn_str = f'{ps_user}:{ps_pass}@{ps_server}:5432/{ps_db}'
         config.PG_CONNECTION_STRING = f"postgresql+psycopg://{db_conn_str}"
         config.PG_TORTOISE_CONNECTION_STRING = f"postgres://{db_conn_str}"

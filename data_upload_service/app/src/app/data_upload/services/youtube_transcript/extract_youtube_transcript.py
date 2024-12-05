@@ -22,7 +22,13 @@ async def extract_youtube_transcript(datafeed_source_unique_id: str,
                                     ):
     docs: List[Document] = []
     try:
-        transcript_list = YouTubeTranscriptApi.get_transcript(datafeed_source_unique_id, languages=['en', 'en-GB'])
+        proxies = None
+        if config.PROXY:
+            proxies = {
+                'http': f'http://{config.PROXY_AUTH}@{config.PROXY}',
+                'https': f'http://{config.PROXY_AUTH}@{config.PROXY}'
+                }
+        transcript_list = YouTubeTranscriptApi.get_transcript(datafeed_source_unique_id, proxies=proxies, languages=['en', 'en-GB'])
         cc: str
         time_int: int | None 
         start_time = []
