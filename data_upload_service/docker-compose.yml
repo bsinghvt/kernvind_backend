@@ -16,8 +16,6 @@ services:
       - "./../crypto_lib:/crypto_lib"
       - "./../huggingface:/huggingface"
       - "./app/logs:/logs"
-    ports:
-      - "5006:5001"
     networks:
       - postgres_db
     environment:
