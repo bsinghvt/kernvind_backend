@@ -139,7 +139,8 @@ async def _receive(bot_id: int, user_name: str, user_id: int, llm: str, datasour
             await websocket.send_as(Failure(error="User is removed from bot"), Failure) #type: ignore
             await websocket.close(401, 'User is removed from bot')
             return
-        await broker.publish(ChatMessageOut(message_id=in_id, 
+        if msg.bot_id > 0 and msg.user_id_in > 0:
+            await broker.publish(ChatMessageOut(message_id=in_id, 
                                             bot_id=msg.bot_id,
                                             user_id_in=msg.user_id_in,
                                             user_id_out=msg.user_id_in,
@@ -147,14 +148,15 @@ async def _receive(bot_id: int, user_name: str, user_id: int, llm: str, datasour
                                             created=date_time_now,
                                             modified=date_time_now,
                                             message_user_name=user_name))
-        await broker.publish(ChatMessageOut(message_id=sent_id, 
+ 
+        q_and_a = (msg.message_text, [])
+        if not msg.notification:
+            await broker.publish(ChatMessageOut(message_id=sent_id, 
                                             bot_id=msg.bot_id,
                                             user_id_in=msg.user_id_in,
                                             message_text='\U0001F914',
                                             created=date_time_now,
                                             modified=date_time_now))
-        q_and_a = (msg.message_text, [])
-        if not msg.notification:
             resp = runllm_with_rag(msg.message_text, bot_id)
             date_time_now = datetime.now()
             async for chunk in resp:
@@ -166,17 +168,17 @@ async def _receive(bot_id: int, user_name: str, user_id: int, llm: str, datasour
                                             modified=date_time_now)
                 await broker.publish(messageOut)
                 q_and_a[1].append(chunk)
-        bot_answer  = None
-        if len(q_and_a[1]) > 0:
-            bot_answer = ''.join(q_and_a[1])
-        database_save_message = ChatMessageDatabase(user_message=q_and_a[0],
+            bot_answer  = None
+            if len(q_and_a[1]) > 0:
+                bot_answer = ''.join(q_and_a[1])
+            database_save_message = ChatMessageDatabase(user_message=q_and_a[0],
                                                     notification=msg.notification,
                                                     bot_answer=bot_answer,
                                                     user_id=user_id,
                                                     bot_id=bot_id,
                                                     datasource_id=datasource_id,
                                                     llm=llm)
-        await save_message(msg=database_save_message)
+            await save_message(msg=database_save_message)
 
 @chat_bp.websocket('/ws/bot/<bot_id>')
 async def wss(bot_id: str) -> Any:
