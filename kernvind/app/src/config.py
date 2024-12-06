@@ -30,7 +30,7 @@ class Development(Config):
     DEBUG = True
 
 class Production(Config):
-    BOT_CHAT_USER_REMOVE_URL = ''
+    BOT_CHAT_USER_REMOVE_URL = 'https://api.kernvind.com/chat/user'
     SECRET_KEY = 'an actually secret key'
 class Testing(Config):
     TESTING = True
