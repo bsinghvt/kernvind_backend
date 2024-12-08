@@ -4,16 +4,30 @@ from ...core.llm_constants import OLLAMA, OPENAI
 from ...models.user_llm_model import LlmConfig
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
+import httpx
 
 def verify_llm(llm_config: LlmConfig, llmmodeltype_name: str, llm_name: str):
     try:
         llm = None
-        print(llmmodeltype_name)
-        print(llm_name)
         if llmmodeltype_name == OLLAMA:
+            auth = None
+            headers = None
+            if llm_config:
+                if llm_config.user_name and llm_config.password:
+                    auth=(llm_config.user_name, llm_config.password)
+                if llm_config.api_key and llm_config.api_key_header:
+                    headers = {
+                        llm_config.api_key : llm_config.api_key_header
+                    }
+            client_kwargs = {}
+            if auth:
+                client_kwargs['auth'] = auth
+            if headers:
+                client_kwargs['headers'] = headers
             llm = ChatOllama(
                     model = llm_name,
                     base_url = llm_config.url,
+                    client_kwargs = client_kwargs
                 )
         elif llmmodeltype_name == OPENAI:
             llm = ChatOpenAI(
