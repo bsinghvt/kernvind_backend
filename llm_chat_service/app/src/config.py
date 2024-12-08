@@ -14,6 +14,7 @@ class Config:
     LC_PG_VECTOR_INSTANCE_COLLECTION_FOR_BOT = {}
     LC_LLM_INSTANCE_COLLECTION_FOR_BOT = {}
     LC_LLM_INSTANCE_COLLECTION = {}
+    LC_USER_LLM_NAME_INSTANCE_COLLECTION = {}
     QUART_SCHEMA_PYDANTIC_DUMP_OPTIONS = {'exclude_none': True}
     JWT_ALGORITHM = 'RS256'
     EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
