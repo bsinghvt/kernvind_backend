@@ -16,21 +16,31 @@ services:
       - "./../crypto_lib:/crypto_lib"
       - "./../huggingface:/huggingface"
       - "./app/logs:/logs"
+      - "./../sec/ssh_key:/ssh_key"
     networks:
       - postgres_db
+      - ip6net
+
+
     environment:
        APP_CREDS_JSON_FILE: /run/secrets/app_creds
+       PROD_APP_CREDS_JSON_FILE: /run/secrets/prod_creds
        HF_HOME: /huggingface
 
     secrets:
       - app_creds
+      - prod_creds
 
 secrets:
   app_creds:
     file: ./../sec/app_creds.json 
+  prod_creds:
+    file: ./../sec/prod_app_creds.json 
 
 networks:
   postgres_db:
+    external: true
+  ip6net:
     external: true
    
 

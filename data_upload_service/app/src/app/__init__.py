@@ -15,32 +15,32 @@ from logging.handlers import RotatingFileHandler
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from tortoise.query_utils import Prefetch
 
-if not os.path.exists('/logs'):
-    os.makedirs('/logs')
-    
-root = logging.getLogger()
-handler = RotatingFileHandler('/logs/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-handler.setLevel(logging.ERROR)
-formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
-handler.setFormatter(formatter)
-root.addHandler(handler)
-
-handler = RotatingFileHandler('/logs/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-handler.setLevel(logging.INFO)
-handler.setFormatter(formatter)
-
-root.addHandler(handler)
-root.setLevel(logging.INFO)
-
-pgvector_logger = logging.getLogger('pgvector_logger')
-handler = RotatingFileHandler('/logs/pgvector_logger.warn', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-handler.setLevel(logging.WARNING)
-formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
-handler.setFormatter(formatter)
-pgvector_logger.addHandler(handler)
-
 async def start_consumer(config: Config):
+    if not os.path.exists(config.LOGDIR):
+        os.makedirs(config.LOGDIR)
+    
+    root = logging.getLogger()
+    handler = RotatingFileHandler(f'{config.LOGDIR}/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+    handler.setLevel(logging.ERROR)
+    formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
+    handler.setFormatter(formatter)
+    root.addHandler(handler)
+
+    handler = RotatingFileHandler(f'{config.LOGDIR}/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+    handler.setLevel(logging.INFO)
+    handler.setFormatter(formatter)
+
+    root.addHandler(handler)
+    root.setLevel(logging.INFO)
+
+    pgvector_logger = logging.getLogger('pgvector_logger')
+    handler = RotatingFileHandler(f'{config.LOGDIR}/pgvector_logger.warn', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
+    handler.setLevel(logging.WARNING)
+    formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
+    handler.setFormatter(formatter)
+    pgvector_logger.addHandler(handler)
     pg_async_engine: AsyncEngine | None = None
+    
     try:
         config.PGVECTOR_LOGGER = pgvector_logger
         pg_async_engine = create_async_engine(config.PG_CONNECTION_STRING, echo=False)
@@ -62,6 +62,7 @@ async def start_consumer(config: Config):
                                                         'datafeedsource_id',
                                                         'datasource_id',
                                                         'modified').order_by('modified').prefetch_related(datasource_prefetch)
+                print('connectod')
                 if len(datafeeds) == 0:
                     time.sleep(30)
                 else:

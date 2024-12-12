@@ -8,6 +8,8 @@ packages = [{include = "app", from = "src"}]
 
 [tool.poetry.scripts]
 start_dev = "manage:dev_app"
+start_local_prod = "manage:prod_local_app"
+start_local_prod_host = "manage:prod_local_app_in_host"
 
 [tool.poetry.dependencies]
 python = ">=3.12,<3.13"
@@ -26,6 +28,9 @@ tortoise-orm = {extras = ["asyncpg"], version = "^0.21.6"}
 crypto-lib = {path = "../../crypto_lib"}
 opencv-python-headless = "^4.10.0.84"
 data-models = {path = "../../data_models"}
+sshtunnel = "^0.4.0"
+psycopg2-binary = "^2.9.10"
+greenlet = "^3.1.1"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
