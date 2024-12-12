@@ -18,9 +18,22 @@ async def createLlmModels():
   try:
     llmAndTypes = [
             ('llama3.1', 'Ollama'),
+            ('llama3.1:8b', 'Ollama'),
+            ('llama3.1:70b', 'Ollama'),
+            ('llama3.2', 'Ollama'),
+            ('llama3.2:1b', 'Ollama'),
+            ('llama3.2:3b', 'Ollama'),
             ('gemma2:9b', 'Ollama'), 
+            ('llama3.3:70b', 'Ollama'),
+            ('llama3.3', 'Ollama'), 
+            ('mistral', 'Ollama'), 
+            ('mistral:7b', 'Ollama'), 
+            ('mistral:7b-instruct', 'Ollama'), 
+            ('mistral:7b-instruct-fp16', 'Ollama'), 
             ('gpt-4o-mini', 'OpenAI'), 
-            ('gpt-4o', 'OpenAI')
+            ('gpt-4o', 'OpenAI'),
+            ('gpt-4-turbo', 'OpenAI'), 
+            ('gpt-3.5-turbo', 'OpenAI')
           ]
     for llmModelAndType in llmAndTypes:
       llm, llmType = llmModelAndType
