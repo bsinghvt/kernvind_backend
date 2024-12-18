@@ -58,4 +58,5 @@ FROM base as production
 COPY --from=dev ${VIRTUAL_ENV} ${VIRTUAL_ENV}
 WORKDIR /app
 COPY ${APP_HOME}/src ./
-ENTRYPOINT [ "python", "manage.py"]
+EXPOSE 8080
+ENTRYPOINT [ "hypercorn", "--bind", "0.0.0.0:8080", "asgi:production_app"]
