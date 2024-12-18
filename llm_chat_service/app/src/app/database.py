@@ -15,6 +15,7 @@ def init_db(app: Quart, generate_schemas=False):
                                  "data_models.datasource_model",
                                "data_models.datafeed_source_model",
                                "data_models.chat_message_model",
+                               "data_models.vector_model",
                              ]},
            generate_schemas=generate_schemas,
            )

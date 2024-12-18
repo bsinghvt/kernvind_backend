@@ -1,7 +1,4 @@
 
-import datetime
-import os
-
 from langchain_huggingface import HuggingFaceEmbeddings
 
 class Config:
@@ -15,10 +12,11 @@ class Config:
     LC_LLM_INSTANCE_COLLECTION_FOR_BOT = {}
     LC_LLM_INSTANCE_COLLECTION = {}
     LC_USER_LLM_NAME_INSTANCE_COLLECTION = {}
+    PLAYGROUND_LLM_CONFIG_DICT = {}
     QUART_SCHEMA_PYDANTIC_DUMP_OPTIONS = {'exclude_none': True}
     JWT_ALGORITHM = 'RS256'
-    EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
-    EMBEDDINGS_LENGTH=768
+    EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')
+    EMBEDDINGS_LENGTH=384
     JWT_DECODE_LEEWAY = 10
     JWT_ERROR_MESSAGE_KEY = 'error'
 
