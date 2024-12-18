@@ -171,14 +171,15 @@ async def _receive(bot_id: int, user_name: str, user_id: int, llm: str, datasour
             bot_answer  = None
             if len(q_and_a[1]) > 0:
                 bot_answer = ''.join(q_and_a[1])
-            database_save_message = ChatMessageDatabase(user_message=q_and_a[0],
+            if bot_answer and "I don't have enough information to answer this question" not in bot_answer:
+                database_save_message = ChatMessageDatabase(user_message=q_and_a[0],
                                                     notification=msg.notification,
                                                     bot_answer=bot_answer,
                                                     user_id=user_id,
                                                     bot_id=bot_id,
                                                     datasource_id=datasource_id,
                                                     llm=llm)
-            await save_message(msg=database_save_message)
+                await save_message(msg=database_save_message)
 
 @chat_bp.websocket('/ws/bot/<bot_id>')
 async def wss(bot_id: str) -> Any:
