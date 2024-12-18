@@ -35,11 +35,9 @@ Each <source> element contains <link>, <title>, and <content>. The <source> elem
 When answering:  
 - If the provided context lacks enough information to answer, respond: "I'm sorry, but I don't have enough information to answer this question.
 - If the information is ambiguous or unclear, ask for clarification from the user.  
-- Cite sources using numbered citations and list them at the end of the response in IEEE format, including the <title>, <link>, <page_name> (if available), and <page_number> (if available). Omit optional elements if they are missing.  
-- Do not reproduce XML tags directly in the response.  
-- Avoid mentioning that the information comes from the provided XML context.  
+- Provide sources using numbered citations ([1], [2], etc.) and list them at the end of the response in IEEE format. Each citation should include the <title>, <link>, <page_name>, and <page_number> where available. Exclude optional elements if they are not present. Do not use XML tags; include only the values.
 
-Current Question:  
+Question:  
 {question}  
 
 Answer:""
