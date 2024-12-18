@@ -26,7 +26,7 @@ async def user_google_login(login: GoogleSigIn):
         elif platform == 'ios':
             client_id = current_app.config['GOOGLE_SIGN_IN_WEB_CLIENT_ID']
         elif platform == 'android':
-            client_id = current_app.config['GOOGLE_SIGN_IN_WEB_CLIENT_ID']
+            client_id = current_app.config['GOOGLE_SIGN_IN_ANDROID_WEB_CLIENT_ID']
         
         if client_id == '':
             return AuthFailure(error="Required parameters are missing. Please try again"), 400

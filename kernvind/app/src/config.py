@@ -12,7 +12,8 @@ class Config:
     BCRYPT_HASH_PREFIX = '2b'
     #EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-mpnet-base-v2')
     EMBEDDINGS=''
-    EMBEDDINGS_LENGTH=768
+    EMBEDDINGS_LENGTH=384
+    GOOGLE_SIGN_IN_ANDROID_WEB_CLIENT_ID = '526432072855-08g564n8r6j6ifv6pfp492jit7sctq7v.apps.googleusercontent.com'
     GOOGLE_SIGN_IN_WEB_CLIENT_ID = '450752284339-ulgvunhkpo3k392irbe4e7ovko4gc4j8.apps.googleusercontent.com'
     GOOGLE_SIGN_IN_IOS_CLIENT_ID = '450752284339-agsh7dq7sed4jhom2785s1api6i43oki.apps.googleusercontent.com'
     GOOGLE_SIGN_IN_ANDROID_CLIENT_ID = '450752284339-3u1r6v2c61iuo9saao7flgm43ga80rc7.apps.googleusercontent.com'
@@ -30,6 +31,7 @@ class Development(Config):
     DEBUG = True
 
 class Production(Config):
+    GOOGLE_SIGN_IN_ANDROID_WEB_CLIENT_ID = '450752284339-ulgvunhkpo3k392irbe4e7ovko4gc4j8.apps.googleusercontent.com'
     BOT_CHAT_USER_REMOVE_URL = 'https://api.kernvind.com/chat/user'
     SECRET_KEY = 'an actually secret key'
 class Testing(Config):
