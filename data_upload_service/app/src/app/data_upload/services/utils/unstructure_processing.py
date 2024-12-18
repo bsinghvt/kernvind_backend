@@ -22,10 +22,11 @@ TXT = 'text/plain'
 
 class UnstructureProcess:
     _elements: List[Element]
-    def __init__(self, fh: BytesIO, mime_type: str, meta_data: MetaData) -> None:
+    def __init__(self, fh: BytesIO, mime_type: str, meta_data: MetaData, pdf_strategy_fast=False) -> None:
         self._fh = fh
         self._mime_type = mime_type
         self._meta_data = meta_data
+        self._pdf_strategy_fast = pdf_strategy_fast
         
     async def partition(self):
         try:
@@ -33,8 +34,10 @@ class UnstructureProcess:
                 return await self._ms_docx()
             elif self._mime_type == MS_DOC:
                 return await self._ms_doc()
-            elif self._mime_type == PDF:
+            elif self._mime_type == PDF and self._pdf_strategy_fast == False:
                 return await self._pdf()
+            elif self._mime_type == PDF and self._pdf_strategy_fast == True:
+                return await self._pdf_fast()
             elif self._mime_type == CSV:
                 return await self._csv()
             elif self._mime_type == XLSX:
@@ -89,6 +92,14 @@ class UnstructureProcess:
             self._elements = partition_pdf(file=self._fh,
                                         infer_table_structure=True,
                                         strategy='hi_res')
+            return await self._process_elements_pdf()
+        except Exception as e:
+            raise
+        
+    async def _pdf_fast(self):
+        try:
+            self._elements = partition_pdf(file=self._fh,
+                                        strategy='fast')
             return await self._process_elements_pdf()
         except Exception as e:
             raise

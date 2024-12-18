@@ -1,48 +1,36 @@
-import os
 import time
 from typing import List
+
+from .routes import register_routes
+
+from .load_creds import quart_app_creds_load
+from quart import Quart
+from quart_cors import cors
+from quart_schema import QuartSchema, RequestSchemaValidationError, ResponseSchemaValidationError
+from .set_logger import logger_set
 from tortoise.transactions import  in_transaction
 from data_models.datasource_model import DataFeed
 from data_models.bot_model import DataSource
 from tortoise import Tortoise
 
 from .data_upload.models.datafeed_postgres_model import DataFeedPostgres
-from .database import init_pgvector, init_tortoise
+from .database import init_pgvector, init_quart_app_db, init_tortoise
 from .data_upload.services.data_upload_service import data_upload
-from .config import Config
+from .config import Config, Development
 import logging
-from logging.handlers import RotatingFileHandler
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from tortoise.query_utils import Prefetch
+from quart_jwt_extended import (
+    JWTManager
+)
 
 async def start_consumer(config: Config):
-    if not os.path.exists(config.LOGDIR):
-        os.makedirs(config.LOGDIR)
     
-    root = logging.getLogger()
-    handler = RotatingFileHandler(f'{config.LOGDIR}/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-    handler.setLevel(logging.ERROR)
-    formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
-    handler.setFormatter(formatter)
-    root.addHandler(handler)
-
-    handler = RotatingFileHandler(f'{config.LOGDIR}/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-    handler.setLevel(logging.INFO)
-    handler.setFormatter(formatter)
-
-    root.addHandler(handler)
-    root.setLevel(logging.INFO)
-
-    pgvector_logger = logging.getLogger('pgvector_logger')
-    handler = RotatingFileHandler(f'{config.LOGDIR}/pgvector_logger.warn', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-    handler.setLevel(logging.WARNING)
-    formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
-    handler.setFormatter(formatter)
-    pgvector_logger.addHandler(handler)
+    logger_set(config=config)
+    
     pg_async_engine: AsyncEngine | None = None
     
     try:
-        config.PGVECTOR_LOGGER = pgvector_logger
         pg_async_engine = create_async_engine(config.PG_CONNECTION_STRING, echo=False)
         init_pgvector(config=config)
         await init_tortoise(config=config)
@@ -62,7 +50,7 @@ async def start_consumer(config: Config):
                                                         'datafeedsource_id',
                                                         'datasource_id',
                                                         'modified').order_by('modified').prefetch_related(datasource_prefetch)
-                print('connectod')
+                print('connected')
                 if len(datafeeds) == 0:
                     time.sleep(30)
                 else:
@@ -109,4 +97,46 @@ async def start_consumer(config: Config):
         await Tortoise.close_connections()
             
         
+def create_quart_app(app_config: Config):
+    """In production create as app = create_app('Production')"""
+    app = Quart(__name__)
+    QuartSchema(app, openapi_path = "/dataupload/openapi.json",
+                redoc_ui_path = "/apdatauploadi/redocs",
+                scalar_ui_path  = "/dataupload/scalar",
+                swagger_ui_path = "/dataupload/docs")
+    @app.errorhandler(RequestSchemaValidationError)
+    async def handle_request_validation_error(error):
+        logging.error(f'quart schema request validation error: {str(error.validation_error)}')   
+        return {
+      "error": 'All required fields are not provided',
+     }, 400
+    
+    @app.errorhandler(ResponseSchemaValidationError)
+    async def handle_response_validation_error(error):
+        logging.error(f'quart schema response validation error: {str(error.validation_error)}')   
+        return {
+      "error": 'Response validation failed',
+     }, 500
+    app = cors(app, allow_origin="*")
+    app.config.from_object(app_config)
+    app.config['APP_ROOT_LOGGER']  = logger_set(config=app_config)
+    quart_app_creds_load(app)
+
+    init_quart_app_db(app=app, generate_schemas=True)
+    app.config['MAX_CONTENT_LENGTH'] = 1 * 1000 * 1024
+    app.config['CONFIG'] = app_config 
+    @app.before_serving
+    async def create_pg_async_engine():
+        print('before serving')
+        engine = create_async_engine(app.config['PG_CONNECTION_STRING'], echo=False)
+        app.config['PG_ASYNC_ENGINE'] = engine
+    
+    @app.after_serving
+    async def clean_up():
+        print('aftr serving')
+        engine: AsyncEngine = app.config['PG_ASYNC_ENGINE']
+        await engine.dispose()
         
+    register_routes(app)
+    JWTManager(app)
+    return app

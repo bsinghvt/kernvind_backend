@@ -15,13 +15,12 @@ services:
       - "./../data_models:/data_models"
       - "./../crypto_lib:/crypto_lib"
       - "./../huggingface:/huggingface"
-      - "./app/logs:/logs"
       - "./../sec/ssh_key:/ssh_key"
     networks:
       - postgres_db
       - ip6net
-
-
+    ports:
+      - "5008:5001"
     environment:
        APP_CREDS_JSON_FILE: /run/secrets/app_creds
        PROD_APP_CREDS_JSON_FILE: /run/secrets/prod_creds
