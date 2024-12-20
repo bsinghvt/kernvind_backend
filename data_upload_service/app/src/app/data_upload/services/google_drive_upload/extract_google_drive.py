@@ -9,17 +9,12 @@ from .get_file_content import get_file_content
 
 from .google_drive_files_loop import google_drive_files_loop
 
-from ...models.google_drive_auth_token_model import GoogleDriveAuthToken
-
 from ....config import Config
 from ..utils.pg_vector_upload import upload_vector_doc_pg
 from ...models.document_metadata_model import MetaData
 
 SCOPES = [
-        "https://www.googleapis.com/auth/userinfo.email",
         "https://www.googleapis.com/auth/drive.readonly",
-        "openid",
-        "https://www.googleapis.com/auth/userinfo.profile"
     ]
 ACCOUNT = ''
 
@@ -33,13 +28,7 @@ async def extract_google_drive(datafeed_source_unique_id: str,
                                     config: Config,
                                     user_token: str):
     try:
-        user_info_obj = GoogleDriveAuthToken.model_validate_json(user_token)
-        user_info_dict = user_info_obj.model_dump()
-        user_info_dict['scopes'] = SCOPES
-        user_info_dict['account'] = ACCOUNT
-        google_sec = json.loads(config.GOOGLE_SEC)
-        user_info_dict['client_id'] = google_sec['web']['client_id']
-        user_info_dict['client_secret'] = google_sec['web']['client_secret']
+        user_info_dict = json.loads(user_token)
         async for google_drive_file in google_drive_files_loop(user_info=user_info_dict, 
                                     folder_id=datafeed_source_unique_id):
             if isinstance(google_drive_file, GoogleDriveFileMetaData):

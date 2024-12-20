@@ -1,10 +1,10 @@
 import logging
 from typing import Optional
 
+from .data_upload_service.utils.validate_google_creds import google_drive_user_creds_validation
+
 from .data_upload_service.utils.validate_youtube_video import validate_youtube_video
 
-
-from .data_upload_service.datasource_feeds.google_drive_user_token_service import get_google_drive_user_token
 from data_models.bot_model import DataSource
 from data_models.datasource_model import DataFeed
 
@@ -35,14 +35,23 @@ async def add_datasource_feed(user_id: int, datasourceAddFeed: DataSourceAddFeed
         datasourceAddFeed.datafeed_source_title  = title
     try:
         async with in_transaction() as connection:
-            user_token: str | None = None
+            folder_name: str | None = None
             kdf_salt: bytes| None = None
             ciphertext: bytes| None = None
             nonce: bytes| None = None
             auth_tag: bytes| None = None
             if datasourceAddFeed.datafeedsource_id == 'Google drive':
-                user_token = await get_google_drive_user_token(access_key=access_key)
-                kdf_salt, ciphertext, nonce, auth_tag = encrypt_AES_GCM(data = user_token.encode())
+                try:
+                    folder_name = await google_drive_user_creds_validation(access_key=access_key, folder_id=datasourceAddFeed.datafeed_source_unique_id)
+                except Exception as e:
+                    logging.error(e.__str__())
+                    err = e.__str__()
+                    return Failure(error=err), 400
+                
+                if not isinstance(folder_name, str):
+                    return Failure(error="An error occurred. Please try again later."), 500
+                datasourceAddFeed.datafeed_source_title = folder_name
+                kdf_salt, ciphertext, nonce, auth_tag = encrypt_AES_GCM(data = access_key.encode())
             datasource =  await DataSource.filter(created_by_user_id=user_id, datasource_id=datasourceAddFeed.datasource_id)
             if len(datasource) == 0:
                 return Failure(error="User is Unauthorized to add datasource feed"), 401

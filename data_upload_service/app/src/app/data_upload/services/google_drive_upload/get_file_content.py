@@ -2,10 +2,9 @@ import io
 from typing import Any
 from googleapiclient.http import MediaIoBaseDownload
 import logging
-from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-
+from oauth2client.service_account import ServiceAccountCredentials
 from ...models.document_metadata_model import MetaData
 
 from ..utils.unstructure_processing import UnstructureProcess
@@ -13,7 +12,7 @@ from ..utils.unstructure_processing import UnstructureProcess
 async def get_file_content(user_info: dict, file_id: str, mime_type: str, metadata: MetaData):
     try:
         request: Any
-        creds = Credentials.from_authorized_user_info(user_info)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(user_info)
         service = build("drive", "v3", credentials=creds)
         if mime_type == 'application/vnd.google-apps.document':
             mime_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'

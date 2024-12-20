@@ -1,6 +1,6 @@
 import gc
 import logging
-from google.oauth2.credentials import Credentials
+from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
@@ -20,7 +20,7 @@ FILE_MIME_TYPE_QUERY = ("(mimeType='application/msword'"
 MAX_SUB_FOLDERS = 50
 async def google_drive_files_loop(user_info: dict, folder_id: str):
     try:
-        creds = Credentials.from_authorized_user_info(user_info)
+        creds = ServiceAccountCredentials.from_json_keyfile_dict(user_info)
         service = build("drive", "v3", credentials=creds)
         page_token = None
         parent_folder_query = f"'{folder_id}' in parents"

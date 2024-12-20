@@ -17,9 +17,7 @@ async def delete_datasource(user_id:int, datasource_id: int):
             datasource_name = datasource[0].datasource_name
             
             await DataSource.filter(created_by_user_id=user_id, datasource_id=datasource_id).delete() 
-            collection = await langchain_pg_collection.filter(name=datasource_name).delete()
-            if not collection:
-                return Failure(error="User is Unauthorized to delete datasource"), 401
+            await langchain_pg_collection.filter(name=datasource_name).delete()
         return Success(msg='Datasource is deleted')
         
     except Exception as e:
