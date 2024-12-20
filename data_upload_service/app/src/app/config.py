@@ -7,6 +7,7 @@ from typing import Optional
 from langchain_huggingface import HuggingFaceEmbeddings
 
 class Config:
+    AWS_REGION = 'us-east-1'
     DEBUG = False
     TESTING = False
     SECRET_KEY = 'secret'
