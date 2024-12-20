@@ -60,3 +60,4 @@ WORKDIR /app
 COPY ${APP_HOME}/src ./
 EXPOSE 8080
 ENTRYPOINT [ "hypercorn", "--bind", "0.0.0.0:8080", "asgi:production_app"]
+#ENTRYPOINT [ "tail", "-F", "anything"]
