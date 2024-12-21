@@ -180,64 +180,108 @@ async def _receive(bot_id: int, user_name: str, user_id: int, llm: str, datasour
                                                     datasource_id=datasource_id,
                                                     llm=llm)
                 await save_message(msg=database_save_message)
+                
+def decode_jwt(token: str) -> dict:
+    return decode_token(token)
+
+def test_llm(input: str, bot_id: int) -> Any:
+    llm_instance_collection = current_app.config['LC_LLM_INSTANCE_COLLECTION_FOR_BOT']
+    llm: BaseChatModel = llm_instance_collection[bot_id]
+    return llm.invoke(input=input)
 
 @chat_bp.websocket('/ws/bot/<bot_id>')
-async def wss(bot_id: str) -> Any:
-    bot_id_int: int
-    user_name: str
-    user_id: int
-    await websocket.accept(subprotocol='authorization')  
+async def websocket_handler(bot_id: str) -> None:
+    headers = websocket.headers
+    if "authorization" in websocket.requested_subprotocols:
+        await websocket.accept(subprotocol="authorization")
+    else:
+        await websocket.accept()  # Accept without a subprotocol
+    # Initialize variables
     try:
         bot_id_int = int(bot_id)
-        jwt = websocket.requested_subprotocols[1]
-        decoded_token = decode_token(jwt)
+    except ValueError:
+        await _close_websocket(400, "Invalid bot_id format")
+        return
+
+    try:
+        # Validate JWT and extract user details
+        if len(websocket.requested_subprotocols) > 1:
+            jwt = websocket.requested_subprotocols[1]
+        else:
+            jwt = headers.get('Authorization', '').replace('Bearer ', '')
+        decoded_token = decode_jwt(jwt)
         jwt_token_obj = Jwt.model_validate(decoded_token)
         user_id = jwt_token_obj.identity
         user_name = jwt_token_obj.user_claims.full_name
     except Exception as e:
-        await websocket.send_as(Failure(error="Not auhtorized"), Failure) #type: ignore
-        await websocket.close(401, 'Not auhtorized')
+        logging.warning(f"Authorization failed: {e}")
+        await _close_websocket(401, "Not authorized")
         return
+
     if not user_id or not user_name:
-        await websocket.send_as(Failure(error="Not auhtorized"), Failure) #type: ignore
-        await websocket.close(401, 'Not auhtorized')
+        logging.warning("Missing user_id or user_name in JWT token")
+        await _close_websocket(401, "Not authorized")
         return
-    
+
+    # Fetch bot-user LLM configuration
     bot_user_llm = await get_bot_userllm(bot_id=bot_id_int, user_id=user_id)
-    if isinstance(bot_user_llm, BotUserLlm):
-        pass
-    else:
+    if not isinstance(bot_user_llm, BotUserLlm):
         error, code = bot_user_llm
-        await websocket.send_as(error, Failure) #type: ignore
-        await websocket.close(code, error.error)
+        logging.error(f"Failed to get bot-user LLM: {error}")
+        await _close_websocket(code, error.error)
         return
-    
+
+    # Verify and connect to LLM
     llm_assigned = get_lc_llm(bot_user_llm=bot_user_llm)
     if llm_assigned:
         try:
-            llm_instance_for_bot_dict = current_app.config['LC_LLM_INSTANCE_COLLECTION_FOR_BOT']
-            llm: BaseChatModel = llm_instance_for_bot_dict[bot_user_llm.bot_id]
-            llm.invoke(input='Hello')
+            test_llm(input='Hello', bot_id=bot_user_llm.bot_id)  # Test LLM connectivity
         except Exception as e:
-            logging.critical(e.__str__())
-            await websocket.send_as(Failure(error="Can not connect to LLM"), Failure) #type: ignore
-            await websocket.close(400, 'Can not connect to LLM, Please check LLM configuration')
+            logging.critical(f"LLM connection failed: {e}")
+            await _close_websocket(400, "Cannot connect to LLM. Please check LLM configuration.")
             return
     else:
-        logging.critical('LLM is not assigned')
-        await websocket.send_as(Failure(error="Can not connect to LLM"), Failure) #type: ignore
-        await websocket.close(400, 'Can not connect to LLM, Please check LLM configuration')
-    
+        logging.critical("No LLM assigned to the bot")
+        await _close_websocket(400, "LLM not assigned. Please check LLM configuration.")
+        return
+
+    # Configure PGVector instance if necessary
     if bot_user_llm.datasource_id and bot_user_llm.datasource_name:
-        await get_pgvector_instance(datasource_id=bot_user_llm.datasource_id,
-                                            datasource_name=bot_user_llm.datasource_name, bot_id=bot_id_int)
+        get_pgvector_instance(
+            datasource_id=bot_user_llm.datasource_id,
+            datasource_name=bot_user_llm.datasource_name,
+            bot_id=bot_id_int
+        )
     else:
-        bot_pg_vector_collection = current_app.config['LC_PG_VECTOR_INSTANCE_COLLECTION_FOR_BOT']
-        bot_pg_vector_collection[bot_id_int] = None
+        pg_vector_collection = current_app.config['LC_PG_VECTOR_INSTANCE_COLLECTION_FOR_BOT']
+        pg_vector_collection[bot_id_int] = None
+
+    # Subscribe to broker and handle messages
+    task = None
     try:
-        task = asyncio.ensure_future(_receive(bot_id=bot_id_int, user_name=user_name, user_id=user_id, llm=f'{bot_user_llm.llmmodeltype_name}-{bot_user_llm.llm_name}', datasource_id=bot_user_llm.datasource_id))
+        task = asyncio.create_task(
+            _receive(
+                bot_id=bot_id_int,
+                user_name=user_name,
+                user_id=user_id,
+                llm=f'{bot_user_llm.llmmodeltype_name}-{bot_user_llm.llm_name}',
+                datasource_id=bot_user_llm.datasource_id,
+            )
+        )
         async for message in broker.subscribe(bot_id=bot_id_int, user_id=user_id):
             await websocket.send_as(message, ChatMessageOut)  # type: ignore
+    except Exception as e:
+        logging.error(f"Error during WebSocket communication: {e}")
     finally:
-        task.cancel() # type: ignore
-        await task # type: ignore
+        if task:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+
+
+async def _close_websocket(code: int, reason: str) -> None:
+    """Helper function to close the WebSocket connection with an error."""
+    await websocket.send_as(Failure(error=reason), Failure)  # type: ignore
+    await websocket.close(code, reason)

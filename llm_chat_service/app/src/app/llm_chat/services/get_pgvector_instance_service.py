@@ -3,7 +3,7 @@ from quart import current_app
 from sqlalchemy.ext.asyncio import AsyncEngine
 from langchain_postgres import PGVector
 
-async def get_pgvector_instance(datasource_name: str, datasource_id: int, bot_id: int):
+def get_pgvector_instance(datasource_name: str, datasource_id: int, bot_id: int):
     engine: AsyncEngine = current_app.config['PG_ASYNC_ENGINE']
     embeddings = current_app.config['EMBEDDINGS']
     pg_vector_instance_dict = current_app.config['LC_PG_VECTOR_INSTANCE_COLLECTION']
