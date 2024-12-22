@@ -4,6 +4,8 @@ import logging
 from typing import Any, List, Optional
 import uuid
 
+from ..services.message_process import create_chat_message_out, process_llm_response
+
 from ..services.get_bot_messages_service import get_bot_messages
 from ..services.save_message_service import save_message
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -122,64 +124,87 @@ async def remove_bot_user(bot_id: str, remove_user_id: str, headers: Headers) ->
 
 async def _receive(bot_id: int, user_name: str, user_id: int, llm: str, datasource_id: Optional[int] = None) -> None:
     while True:
-        msg: ChatMessageIn = await websocket.receive_as(ChatMessageIn)  # type: ignore
-        
-        in_id = str(uuid.uuid4())
-        sent_id = str(uuid.uuid4())
-        date_time_now = datetime.now()
-        if user_id not in broker.websocket_bots[bot_id]:
-            messageOut = ChatMessageOut(message_id=sent_id, 
-                                            bot_id=msg.bot_id,
-                                            user_id_in=msg.user_id_in,
-                                            message_text="User is removed from bot",
-                                            notification=True,
-                                            created=date_time_now,
-                                            modified=date_time_now)
-            await websocket.send_as(messageOut, ChatMessageOut) # type: ignore
-            await websocket.send_as(Failure(error="User is removed from bot"), Failure) #type: ignore
-            await websocket.close(401, 'User is removed from bot')
+        try:
+            # Receive a message
+            incoming_message: ChatMessageIn = await websocket.receive_as(ChatMessageIn)  # type: ignore
+            now = datetime.now()
+
+            # Generate unique IDs for messages
+            incoming_message_id = str(uuid.uuid4())
+            outgoing_message_id = str(uuid.uuid4())
+
+            # Check if the user is associated with the bot
+            if user_id not in broker.websocket_bots.get(bot_id, []):
+                await send_and_close_websocket(
+                    bot_id, user_id, now, "User is removed from bot", 401
+                )
+                return
+
+            # Publish the incoming message
+            if incoming_message.bot_id > 0 and incoming_message.user_id_in > 0:
+                await broker.publish(
+                    create_chat_message_out(
+                        incoming_message_id,
+                        bot_id=incoming_message.bot_id,
+                        user_id_in=user_id,
+                        user_id_out=incoming_message.user_id_in,
+                        message_text=incoming_message.message_text,
+                        user_name=user_name,
+                        created=now,
+                        modified=now,
+                    )
+                )
+
+            # Handle response if the message is not a notification
+            if not incoming_message.notification:
+                await broker.publish(
+                    create_chat_message_out(
+                        outgoing_message_id,
+                        bot_id=incoming_message.bot_id,
+                        user_id_in=user_id,
+                        user_id_out=None,
+                        message_text="\U0001F914",  # Thinking face emoji
+                        created=now,
+                        modified=now,
+                    )
+                )
+
+                # Process the message with the LLM and handle response chunks
+                await process_llm_response(
+                    broker,
+                    incoming_message,
+                    bot_id,
+                    user_id,
+                    datasource_id,
+                    llm,
+                    outgoing_message_id,
+                    now,
+                )
+
+        except Exception as e:
+            logging.error(f"Error in _receive for bot_id={bot_id}, user_id={user_id}: {e}")
+            await websocket.send_as(Failure(error=str(e)), Failure)  # type: ignore
+            await websocket.close(500, "Internal Server Error")
             return
-        if msg.bot_id > 0 and msg.user_id_in > 0:
-            await broker.publish(ChatMessageOut(message_id=in_id, 
-                                            bot_id=msg.bot_id,
-                                            user_id_in=msg.user_id_in,
-                                            user_id_out=msg.user_id_in,
-                                            message_text=msg.message_text,
-                                            created=date_time_now,
-                                            modified=date_time_now,
-                                            message_user_name=user_name))
- 
-        q_and_a = (msg.message_text, [])
-        if not msg.notification:
-            await broker.publish(ChatMessageOut(message_id=sent_id, 
-                                            bot_id=msg.bot_id,
-                                            user_id_in=msg.user_id_in,
-                                            message_text='\U0001F914',
-                                            created=date_time_now,
-                                            modified=date_time_now))
-            resp = runllm_with_rag(msg.message_text, bot_id)
-            date_time_now = datetime.now()
-            async for chunk in resp:
-                messageOut = ChatMessageOut(message_id=sent_id, 
-                                            bot_id=msg.bot_id,
-                                            user_id_in=msg.user_id_in,
-                                            message_text=chunk,
-                                            created=date_time_now,
-                                            modified=date_time_now)
-                await broker.publish(messageOut)
-                q_and_a[1].append(chunk)
-            bot_answer  = None
-            if len(q_and_a[1]) > 0:
-                bot_answer = ''.join(q_and_a[1])
-            if bot_answer and "I don't have enough information to answer this question" not in bot_answer:
-                database_save_message = ChatMessageDatabase(user_message=q_and_a[0],
-                                                    notification=msg.notification,
-                                                    bot_answer=bot_answer,
-                                                    user_id=user_id,
-                                                    bot_id=bot_id,
-                                                    datasource_id=datasource_id,
-                                                    llm=llm)
-                await save_message(msg=database_save_message)
+
+
+async def send_and_close_websocket(bot_id: int, user_id: int, now: datetime, message: str, code: int) -> None:
+    """Send a message to the WebSocket and close the connection."""
+    await websocket.send_as( # type: ignore
+        create_chat_message_out(
+            message_id=str(uuid.uuid4()),
+            bot_id=bot_id,
+            user_id_in=user_id,
+            user_id_out=None,
+            message_text=message,
+            notification=True,
+            created=now,
+            modified=now,
+        ),
+        ChatMessageOut,
+    )
+    await websocket.send_as(Failure(error=message), Failure)  # type: ignore
+    await websocket.close(code, message)
                 
 def decode_jwt(token: str) -> dict:
     return decode_token(token)
