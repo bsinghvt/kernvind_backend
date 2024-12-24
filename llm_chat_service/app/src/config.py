@@ -13,6 +13,7 @@ class Config:
     LC_LLM_INSTANCE_COLLECTION = {}
     LC_USER_LLM_NAME_INSTANCE_COLLECTION = {}
     PLAYGROUND_LLM_CONFIG_DICT = {}
+    PLAYGROUND_LLM_MODEL = 'gpt-4o'
     QUART_SCHEMA_PYDANTIC_DUMP_OPTIONS = {'exclude_none': True}
     JWT_ALGORITHM = 'RS256'
     EMBEDDINGS = HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')

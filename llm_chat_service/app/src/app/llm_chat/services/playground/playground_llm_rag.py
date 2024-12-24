@@ -36,7 +36,7 @@ When answering:
 - If the information is ambiguous or unclear, ask for clarification from the user.  
 - Provide sources using numbered citations ([1], [2], etc.) and list them at the end of the response in IEEE format. Each citation should include the <title>, <link>, <page_name>, and <page_number> where available. Exclude optional elements if they are not present. Do not use XML tags; include only the values.
 
-Current Question:  
+Question:  
 {question}  
 
 Answer:""

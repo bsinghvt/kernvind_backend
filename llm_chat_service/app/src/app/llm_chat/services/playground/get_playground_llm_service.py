@@ -53,12 +53,12 @@ def get_playground_llm(bot_id: str):
     else:
         logging.info('connecting open ai')
         current_app.config['PLAYGROUND_LLM_CONFIG_DICT'][bot_id] = ChatOpenAI(
-                    model = 'gpt-4o-mini',
-                    temperature=0,
+                    model = current_app.config['PLAYGROUND_LLM_MODEL'],
+                    temperature=0.5,
                     max_tokens=None,
                     timeout=None,
                     max_retries=2,
-                    api_key = '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' # type: ignore
+                    api_key =current_app.config['OPEN_AI_KEY'] # type: ignore
                     )
     if not current_app.config['PLAYGROUND_LLM_CONFIG_DICT'][bot_id]:
         return False

@@ -18,6 +18,7 @@ def creds_load(app):
         app.config['JWT_PUBLIC_KEY'] = dict_obj['jwt_public_key']
         app.config['GOOGLE_SEC'] = dict_obj['google_sec']
         app.config['YOUTUBE_API_KEY'] = dict_obj['youtube_api_key']
+        app.config['OPEN_AI_KEY'] = dict_obj['open_ai_key']
         ps_user = dict_obj['ps_user']
         ps_pass = dict_obj['ps_pass']
         ps_db = dict_obj['ps_db']
