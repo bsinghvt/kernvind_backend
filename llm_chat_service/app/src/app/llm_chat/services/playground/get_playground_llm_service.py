@@ -54,7 +54,7 @@ def get_playground_llm(bot_id: str):
         logging.info('connecting open ai')
         current_app.config['PLAYGROUND_LLM_CONFIG_DICT'][bot_id] = ChatOpenAI(
                     model = current_app.config['PLAYGROUND_LLM_MODEL'],
-                    temperature=0.5,
+                    temperature=0,
                     max_tokens=None,
                     timeout=None,
                     max_retries=2,
