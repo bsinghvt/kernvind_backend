@@ -118,8 +118,8 @@ def create_quart_app(app_config: Config):
       "error": 'Response validation failed',
      }, 500
     app = cors(app, allow_origin="*")
-    app.config.from_object(app_config)
     app.config['APP_ROOT_LOGGER']  = logger_set(config=app_config)
+    app.config.from_object(app_config)
     quart_app_creds_load(app)
 
     init_quart_app_db(app=app, generate_schemas=True)
