@@ -5,7 +5,9 @@ ARG SERVICE_NAME
 ENV VIRTUAL_ENV=/poetry_venv 
 ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
 ENV APP_HOME=/${SERVICE_NAME}/app
-
+RUN apt-get update \
+    && apt-get -qq install poppler-utils tesseract-ocr \
+    && apt-get install --no-install-recommends -y libreoffice
 FROM base AS dev
 
 RUN apt-get update \

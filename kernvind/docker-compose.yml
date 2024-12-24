@@ -1,5 +1,8 @@
 services:
   kernvind-dev:
+    env_file:
+      - path: ./sec.env
+        required: true # default
     build:
       context: ./..
       dockerfile: ./${SERVICE_NAME}/Dockerfile
@@ -10,11 +13,12 @@ services:
     environment:
        APP_CREDS_JSON_FILE: /run/secrets/app_creds
        PROD_APP_CREDS_JSON_FILE: /run/secrets/prod_app_creds
+       HF_HOME: /huggingface
     volumes:
       - "./app:/${SERVICE_NAME}/app"
       - "./../data_models:/data_models"
+      - "./../huggingface:/huggingface"
       - "./../crypto_lib:/crypto_lib"
-      - "./app/logs:/logs"
     ports:
       - "5001:5001"
     networks:

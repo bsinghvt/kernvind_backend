@@ -1,4 +1,3 @@
-import gc
 from io import BytesIO
 import logging
 import uuid
@@ -39,11 +38,9 @@ async def playgound_file_upload(file: File):
                         return Failure(error="Maximum 100-page PDFs are allowed. Please upload a smaller file."), 400
         id = str(uuid.uuid4())
         datasource_name='Playground_' + id
-        config = current_app.config['CONFIG'] 
 
         await upload_vector_doc_pg(engine=current_app.config['PG_ASYNC_ENGINE'],
                                     datasource_name=datasource_name,
-                                    config=config,
                                     docs=file_data)
 
         token = create_access_token_util(identity=datasource_name)

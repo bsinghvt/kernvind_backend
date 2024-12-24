@@ -1,4 +1,6 @@
-import os
+from .config import Config
+
+from .set_logger import logger_set
 
 from .load_creds import creds_load
 from .initial_database_data import loadInitialDatabaseData
@@ -8,33 +10,16 @@ from quart_schema import QuartSchema
 from quart_schema import RequestSchemaValidationError, ResponseSchemaValidationError
 
 from .extensions import bcrypt
-#from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 
 from quart_jwt_extended import (
     JWTManager
 )
 import logging
-from logging.handlers import RotatingFileHandler
 from .routes import register_routes
 from quart_cors import cors
 
-if not os.path.exists('/logs'):
-    os.makedirs('/logs')
-root = logging.getLogger()
-handler = RotatingFileHandler('/logs/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-handler.setLevel(logging.ERROR)
-formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
-handler.setFormatter(formatter)
-root.addHandler(handler)
-
-handler = RotatingFileHandler('/logs/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-handler.setLevel(logging.INFO)
-handler.setFormatter(formatter)
-
-root.addHandler(handler)
-root.setLevel(logging.INFO)
-
-def create_app(mode='Development'):
+def create_app(app_config: Config) -> Quart:
     """In production create as app = create_app('Production')"""
     app = Quart(__name__)
     QuartSchema(app, openapi_path = "/api/openapi.json",
@@ -55,31 +40,26 @@ def create_app(mode='Development'):
       "error": 'Response validation failed',
      }, 500
     app = cors(app, allow_origin="*")
-    app.config.from_object(f'config.{mode}')
-    app.config['APP_ROOT_LOGGER'] = root
+    app.config['APP_ROOT_LOGGER']  = logger_set(config=app_config)
+    app.config.from_object(app_config)
     creds_load(app)
     print(app.config['PG_CONNECTION_STRING'])
     init_db(app=app, generate_schemas=True)
-    """
-    @app.before_serving
-    async def create_pg_async_engine():
-        print('before serving')
-        engine = create_async_engine(app.config['PG_CONNECTION_STRING'], echo=True)
-        app.config['PG_ASYNC_ENGINE'] = engine
-    """
+    app.config['MAX_CONTENT_LENGTH'] = 1 * 1000 * 1024
     @app.before_serving
     async def start_up():
         import os
         print('serv')
+        engine = create_async_engine(app.config['PG_CONNECTION_STRING'], echo=False)
+        app.config['PG_ASYNC_ENGINE'] = engine
         await loadInitialDatabaseData()
         
-    """
+
     @app.after_serving
     async def clean_up():
         print('aftr serving')
         engine: AsyncEngine = app.config['PG_ASYNC_ENGINE']
         await engine.dispose()
-    """  
     register_routes(app)
     JWTManager(app)
     bcrypt.init_app(app)

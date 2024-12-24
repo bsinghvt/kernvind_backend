@@ -5,6 +5,7 @@ from .bot.controllers.bot_controller import bot_bp
 from .user_llm.controllers.user_llm_controller import user_llm_bp
 from .user_llm.controllers.llm_list_controller import public_llm_bp
 from .datasource.controllers.datasource_controller import datasource_bp
+from .dataupload.controllers.dataupload_playground_controller import dataupload_bp
 
 from quart import Quart
 def register_routes(app: Quart):
@@ -15,3 +16,4 @@ def register_routes(app: Quart):
     app.register_blueprint(user_llm_bp, url_prefix='/api/userllm')
     app.register_blueprint(public_llm_bp, url_prefix='/api/publicllm')
     app.register_blueprint(datasource_bp, url_prefix='/api/datasource') 
+    app.register_blueprint(dataupload_bp, url_prefix='/api/dataupload') 
