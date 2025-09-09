@@ -48,7 +48,6 @@ def create_app(app_config: Config) -> Quart:
     app.config['MAX_CONTENT_LENGTH'] = 1 * 1000 * 1024
     @app.before_serving
     async def start_up():
-        import os
         print('serv')
         engine = create_async_engine(app.config['PG_CONNECTION_STRING'], echo=False)
         app.config['PG_ASYNC_ENGINE'] = engine

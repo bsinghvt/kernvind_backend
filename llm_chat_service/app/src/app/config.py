@@ -1,4 +1,5 @@
 
+from logging import Logger
 from langchain_huggingface import HuggingFaceEmbeddings
 
 class Config:
@@ -20,12 +21,22 @@ class Config:
     EMBEDDINGS_LENGTH=384
     JWT_DECODE_LEEWAY = 10
     JWT_ERROR_MESSAGE_KEY = 'error'
+    AWS_CLOUDWATCH_LOG_GROUP = ''
+    AWS_CLOUDWATCH_LOG_STREAM = ''
+    APP_LOGGER = 'chat_logger'
+    AWS_CLOUDWATCH_LOG_RETENTION_DAYS = 180
+    AWS_REGION = 'us-east-1'
+    LOGDIR = './logs'
+    PGVECTOR_LOGGER: Logger
+    APP_LOG_HANDLER: Logger
 
 
 class Development(Config):
     DEBUG = True
 
 class Production(Config):
+    AWS_CLOUDWATCH_LOG_STREAM = 'llm_chat_service'
+    AWS_CLOUDWATCH_LOG_GROUP = 'llm_chat_service'
     BOT_CHAT_USER_REMOVE_URL = ''
     SECRET_KEY = 'an actually secret key'
 class Testing(Config):

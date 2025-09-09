@@ -1,36 +1,21 @@
-import logging
-from logging.handlers import RotatingFileHandler
-import os
-from quart import Quart
+from .set_logger import logger_set
+from quart import  Quart
 from quart_schema import QuartSchema
 from quart_jwt_extended import (
     JWTManager
 )
+from .config import Config
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine
 from .load_creds import creds_load
 from .database import init_db
-if not os.path.exists('./logs'):
-    os.makedirs('./logs')
-root = logging.getLogger()
-handler = RotatingFileHandler('./logs/log.error', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-handler.setLevel(logging.ERROR)
-formatter = logging.Formatter('%(asctime)s-%(levelname)s-%(name)s-%(filename)s-%(lineno)d-%(message)s')
-handler.setFormatter(formatter)
-root.addHandler(handler)
-
-handler = RotatingFileHandler('./logs/log.info', maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-handler.setLevel(logging.INFO)
-handler.setFormatter(formatter)
-
-root.addHandler(handler)
-root.setLevel(logging.INFO)
 
 from app.routes import register_routes
-def create_app(mode='Development'):
+def create_app(app_config: Config):
     """In production create as app = create_app('Production')"""
     app = Quart(__name__)
     QuartSchema(app)
-    app.config.from_object(f'config.{mode}')
+    app.config['APP_ROOT_LOGGER']  = logger_set(config=app_config)
+    app.config.from_object(app_config)
     if app.config.get('TESTING', False) == False:
         creds_load(app)
         init_db(app=app, generate_schemas=True)

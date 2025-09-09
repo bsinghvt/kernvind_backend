@@ -32,7 +32,7 @@ class Config:
     JWT_ERROR_MESSAGE_KEY = 'error'
     AWS_CLOUDWATCH_LOG_GROUP = ''
     AWS_CLOUDWATCH_LOG_STREAM = ''
-    APP_LOGGER = 'data_upload'
+    APP_LOGGER = 'kernvind_service'
     AWS_CLOUDWATCH_LOG_RETENTION_DAYS = 180
     AWS_REGION = 'us-east-1'
 
